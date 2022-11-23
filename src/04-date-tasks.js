@@ -106,8 +106,6 @@ function angleBetweenClockHands(date) {
   return diff > Math.PI ? 2 * Math.PI - diff : diff;
 }
 
-// console.log(angleBetweenClockHands(new Date(Date.UTC(2016, 3, 5, 3, 0))));
-
 module.exports = {
   parseDataFromRfc2822,
   parseDataFromIso8601,
