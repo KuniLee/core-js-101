@@ -116,35 +116,93 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
-const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+const myError = new Error('Element, id and pseudo-element should not occur more then one time inside the '
+  + 'selector if element, id or pseudo-element occurs twice or more times');
+const myError2 = new Error('Selector parts should be arranged in the following order: '
+  + 'element, id, class, attribute, pseudo-class, pseudo-element" '
+  + 'if selector parts arranged in an invalid order');
+
+function checkProps(obj, props) {
+  // eslint-disable-next-line no-prototype-builtins
+  if (props.some((el) => obj.hasOwnProperty(el))) throw myError2;
+}
+
+const methodsMap = {
+  element(value) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (this.hasOwnProperty('_element')) throw myError;
+    checkProps(this, ['_id', '_class', '_attr', '_pseudoClass', '_pseudoElement']);
+    // eslint-disable-next-line no-underscore-dangle
+    this._element = value;
+  },
+  id(value) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (this.hasOwnProperty('_id')) throw myError;
+    checkProps(this, ['_class', '_attr', '_pseudoClass', '_pseudoElement']);
+    // eslint-disable-next-line no-underscore-dangle
+    this._id = `#${value}`;
+  },
+  attr(value) {
+    checkProps(this, ['_pseudoClass', '_pseudo-element']);
+    // eslint-disable-next-line no-underscore-dangle
+    this._attr = this._attr ? `${this._attr}[${value}]` : `[${value}]`;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    checkProps(this, ['_attr', '_pseudoClass', '_pseudoElement']);
+    // eslint-disable-next-line no-underscore-dangle
+    this._class = this._class ? `${this._class}.${value}` : `.${value}`;
   },
-
-  class(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    checkProps(this, ['_pseudoElement']);
+    // eslint-disable-next-line no-underscore-dangle
+    this._pseudoClass = this._pseudoClass ? `${this._pseudoClass}:${value}` : `:${value}`;
   },
-
-  attr(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
-  },
-
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (this.hasOwnProperty('_pseudoElement')) throw myError;
+    // eslint-disable-next-line no-underscore-dangle
+    this._pseudoElement = `::${value}`;
   },
 };
+
+const cssSelectorBuilder = class {
+  constructor() {
+    // eslint-disable-next-line guard-for-in,no-restricted-syntax
+    for (const methodKey in methodsMap) {
+      this[methodKey] = (value) => {
+        methodsMap[methodKey].call(this, value);
+        return this;
+      };
+    }
+  }
+
+  stringify() {
+    // eslint-disable-next-line no-underscore-dangle
+    let str = this._element || '';
+    // eslint-disable-next-line no-underscore-dangle
+    str += this._id || '';
+    // eslint-disable-next-line no-underscore-dangle
+    str += this._class || '';
+    // eslint-disable-next-line no-underscore-dangle
+    str += this._attr || '';
+    // eslint-disable-next-line no-underscore-dangle
+    str += this._pseudoClass || '';
+    // eslint-disable-next-line no-underscore-dangle
+    str += this._pseudoElement || '';
+    return str;
+  }
+};
+
+// eslint-disable-next-line guard-for-in,no-restricted-syntax
+for (const methodKey in methodsMap) {
+  // eslint-disable-next-line new-cap
+  cssSelectorBuilder[methodKey] = (value) => new cssSelectorBuilder()[methodKey](value);
+}
+
+cssSelectorBuilder.combine = (selector1, combinator, selector2) => ({
+  stringify: () => `${selector1.stringify()} ${combinator} ${selector2.stringify()}`,
+});
 
 
 module.exports = {
