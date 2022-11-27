@@ -132,9 +132,7 @@ function doRectanglesOverlap(rect1, rect2) {
   const rect2right = rect2.left + rect2.width;
   const rect1bottom = rect1.top + rect1.height;
   const rect2bottom = rect2.top + rect2.height;
-  return rect1.left < rect2right
-    && rect1right > rect2.left && rect1.top < rect2bottom
-    && rect1bottom > rect2.top;
+  return rect1.left < rect2right && rect1right > rect2.left && rect1.top < rect2bottom && rect1bottom > rect2.top;
 }
 
 
@@ -165,8 +163,7 @@ function doRectanglesOverlap(rect1, rect2) {
  *
  */
 function isInsideCircle(circle, point) {
-  return Math.sqrt((circle.center.x - point.x) ** 2
-    + (circle.center.y - point.y) ** 2) < circle.radius;
+  return Math.sqrt((circle.center.x - point.x) ** 2 + (circle.center.y - point.y) ** 2) < circle.radius;
 }
 
 
@@ -285,8 +282,7 @@ function isCreditCardNumber(ccn) {
   const parity = ccn.length % 2;
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < ccn.length; i++) {
-    if ((i + 1) % 2 === parity) sum += ccn[i];
-    else if (ccn[i] > 4) sum += 2 * ccn[i] - 9; else sum += 2 * ccn[i];
+    if ((i + 1) % 2 === parity) sum += ccn[i]; else if (ccn[i] > 4) sum += 2 * ccn[i] - 9; else sum += 2 * ccn[i];
   }
   return sum % 10 === 0;
 }
@@ -337,8 +333,7 @@ function isBracketsBalanced(str) {
   };
   const arr = [];
   str.split('').forEach((el) => {
-    if (map[el]) arr.push(el);
-    else if (map[arr[arr.length - 1]] === el) arr.pop(); else arr.push(el);
+    if (map[el]) arr.push(el); else if (map[arr[arr.length - 1]] === el) arr.pop(); else arr.push(el);
   });
   return arr.length === 0;
 }
@@ -412,8 +407,23 @@ function getCommonDirectoryPath(pathes) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const rows = m1.length;
+  const cols = m2[0].length;
+  const production = [];
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < rows; i++) {
+    const row = new Array(cols).fill(0).map((el, idx) => {
+      let newEl = 0;
+      // eslint-disable-next-line no-plusplus
+      for (let j = 0; j < m1[0].length; j++) {
+        newEl += m1[i][j] * m2[j][idx];
+      }
+      return newEl;
+    },);
+    production.push(row);
+  }
+  return production;
 }
 
 
@@ -447,8 +457,26 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+
+// eslint-disable-next-line consistent-return
+function evaluateTicTacToePosition(position) {
+  const combs = new Array(8).fill(0).map(() => new Set());
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < position.length; i++) {
+    // eslint-disable-next-line no-plusplus
+    for (let j = 0; j < position.length; j++) {
+      combs[i + 5].add(position[i][j]);
+      combs[j].add(position[i][j]);
+      if (j === i) combs[3].add(position[i][j]);
+      if (j + i === 2) combs[4].add(position[i][j]);
+    }
+  }
+  // eslint-disable-next-line no-restricted-syntax
+  for (const set of combs) {
+    if (set.size === 1 && !set.has(undefined)) {
+      return set.values().next().value;
+    }
+  }
 }
 
 
