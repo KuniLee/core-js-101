@@ -132,7 +132,8 @@ function doRectanglesOverlap(rect1, rect2) {
   const rect2right = rect2.left + rect2.width;
   const rect1bottom = rect1.top + rect1.height;
   const rect2bottom = rect2.top + rect2.height;
-  return rect1.left < rect2right && rect1right > rect2.left && rect1.top < rect2bottom && rect1bottom > rect2.top;
+  return rect1.left < rect2right && rect1right
+    > rect2.left && rect1.top < rect2bottom && rect1bottom > rect2.top;
 }
 
 
@@ -163,6 +164,7 @@ function doRectanglesOverlap(rect1, rect2) {
  *
  */
 function isInsideCircle(circle, point) {
+  // eslint-disable-next-line max-len
   return Math.sqrt((circle.center.x - point.x) ** 2 + (circle.center.y - point.y) ** 2) < circle.radius;
 }
 
@@ -282,6 +284,7 @@ function isCreditCardNumber(ccn) {
   const parity = ccn.length % 2;
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < ccn.length; i++) {
+    // eslint-disable-next-line max-len
     if ((i + 1) % 2 === parity) sum += ccn[i]; else if (ccn[i] > 4) sum += 2 * ccn[i] - 9; else sum += 2 * ccn[i];
   }
   return sum % 10 === 0;
@@ -333,6 +336,7 @@ function isBracketsBalanced(str) {
   };
   const arr = [];
   str.split('').forEach((el) => {
+    // eslint-disable-next-line max-len
     if (map[el]) arr.push(el); else if (map[arr[arr.length - 1]] === el) arr.pop(); else arr.push(el);
   });
   return arr.length === 0;
@@ -420,7 +424,7 @@ function getMatrixProduct(m1, m2) {
         newEl += m1[i][j] * m2[j][idx];
       }
       return newEl;
-    },);
+    });
     production.push(row);
   }
   return production;
